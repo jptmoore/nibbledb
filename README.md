@@ -8,6 +8,8 @@ docker run -p 8000:8000 -v /tmp/nibble:/tmp/nibble -it jptmoore/nibbledb /home/n
 
 ## adding data
 
+Values are floats which can optionally be tagged with extra information. If no timestamp is provided it will be automatically generated.
+
 ```bash
 curl -k --request POST --data '[{"value": 1}, {"value": 2}, {"value": 3}, {"value": 4}, {"value": 5}]' https://localhost:8000/ts/foo
 curl -k --request POST --data '[{"value": 10}, {"value": 20}, {"value": 30}, {"value": 40}, {"value": 50}]' https://localhost:8000/ts/bar
@@ -19,34 +21,37 @@ curl -k --request POST --data '[{"timestamp":1, "value": 100}, {"timestamp":2, "
 
 ## retrieving data
 
+Finding the combined length of two time series
+
 ```bash
 curl -k https://localhost:8000/ts/foo,bar/length
 ```
-
 
 ```json
 {"length":10}
 ```
 
+A typical request to obtain the last n values
 
 ```bash
 curl -k https://localhost:8000/ts/foo/last/3
 ```
 
-
 ```json
 [{"timestamp":1545232878575320,"data":{"value":5}},{"timestamp":1545232878575311,"data":{"value":4}},{"timestamp":1545232878575302,"data":{"value":3}}]
 ```
 
+A range query from a specific point in time
 
 ```bash
 curl -k https://localhost:8000/ts/foo/since/1545232878575311
 ```
 
-
 ```json
 [{"timestamp":1545232878575320,"data":{"value":5}},{"timestamp":1545232878575311,"data":{"value":4}}]
 ```
+
+A query which filters the result based on matching tagged values and then applies an aggregation function
 
 ```bash
 curl -k https://localhost:8000/ts/baz/last/5/filter/colour/equals/red/count
@@ -56,6 +61,8 @@ curl -k https://localhost:8000/ts/baz/last/5/filter/colour/equals/red/count
 {"count":3}
 ```
 
+A query across a time range
+
 ```bash
 curl -k https://localhost:8000/ts/boz/range/3/5
 ```
@@ -63,6 +70,8 @@ curl -k https://localhost:8000/ts/boz/range/3/5
 ```json
 [{"timestamp":5,"data":{"value":500}},{"timestamp":4,"data":{"value":400}},{"timestamp":3,"data":{"value":300}}]
 ```
+
+Statistical analysis across different time series
 
 ```bash
 curl -k https://localhost:8000/ts/foo,bar,baz,boz/last/5/sd
@@ -73,6 +82,8 @@ curl -k https://localhost:8000/ts/foo,bar,baz,boz/last/5/sd
 ```
 
 ## deleting data
+
+The delete API support range querying across multiple time series with support for filtering
 
 ```bash
 curl -k --request DELETE https://localhost:8000/ts/baz/since/0/filter/colour/contains/re
