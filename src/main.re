@@ -17,7 +17,8 @@ let key_file = ref("/tmp/server.key");
 let info = (fmt) => Irmin_unix.info(~author="nibbledb", fmt);
 
 type t = {
-  db: Timeseries.t
+  db: Timeseries.t,
+  m: Lwt_mutex.t
 };
 
 exception Interrupt(string);
@@ -149,13 +150,17 @@ let handle_req_worker = (ctx, req, body) => {
   }
 };
 
-let handle_req = (ctx, req, body) => {
-  Lwt.catch(
+let handle_req_safe = (ctx, req, body) => {
+  () => Lwt.catch(
     () => handle_req_worker(ctx, req, body),
     fun
     | Failure(m) => Http_response.bad_request(~content=Printf.sprintf("Error:%s\n",m), ())
     | e => Lwt.fail(e)
   );
+};
+
+let handle_req = (ctx, req, body) => {
+  Lwt_mutex.with_lock(ctx.m, handle_req_safe(ctx, req, body))
 };
 
 
@@ -234,7 +239,8 @@ let init = () => {
   parse_cmdline();
   log_mode^ ? enable_debug() : ();
   { 
-    db: Timeseries.create(~path_to_db=path_to_db^, ~max_buffer_size=max_buffer_size^, ~shard_size=shard_size^, ~show_files=show_files^)
+    db: Timeseries.create(~path_to_db=path_to_db^, ~max_buffer_size=max_buffer_size^, ~shard_size=shard_size^, ~show_files=show_files^), 
+    m: Lwt_mutex.create()
   };
 };
 
