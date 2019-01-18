@@ -1,5 +1,5 @@
 (jbuild_version 1)
   
 (executables
-  ((libraries (irmin-unix oml ezjsonm))
+  ((libraries (irmin-unix oml ezjsonm lwt_log))
     (names (main))))
