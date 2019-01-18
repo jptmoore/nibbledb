@@ -26,10 +26,9 @@ let send_request = (~uri, ~payload) => {
 let post_loop = (count) => {
   let rec loop = (n) =>
     send_request(~uri=uri^, ~payload=payload^) >>=
-      (resp) => Lwt_io.printf("=> Created\n") >>= 
-        () => if (n > 1) {
-          Lwt_unix.sleep(call_freq^) >>= 
-            () => loop(n - 1);
+      (resp) => Lwt_io.printf("=> Created\n") >>= () => 
+        if (n > 1) {
+          Lwt_unix.sleep(call_freq^) >>= () => loop(n - 1);
         } else {
           Lwt.return_unit;
         }
