@@ -1,5 +1,0 @@
-(jbuild_version 1)
-
-(executables
- ((libraries (cohttp cohttp-lwt cohttp-lwt-unix bos))
-    (names (client))))
