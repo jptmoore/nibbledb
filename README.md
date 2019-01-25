@@ -48,11 +48,11 @@ curl -k https://localhost:8000/ts/foo,bar/length
 A range query from a specific point in time
 
 ```bash
-curl -k https://localhost:8000/ts/foo/since/1545232878575311
+curl -k https://localhost:8000/ts/boz/since/4
 ```
 
 ```json
-[{"timestamp":1545232878575320,"data":{"value":5}},{"timestamp":1545232878575311,"data":{"value":4}}]
+[{"timestamp":5,"data":{"value":500}},{"timestamp":4,"data":{"value":400}}]
 ```
 
 A query which filters the result based on matching tagged values and then applies an aggregation function
