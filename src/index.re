@@ -72,10 +72,10 @@ let update = (branch, info, k, tup, remove_list) => {
           let filtered = filter_list(remove_list, curr_lis);
           let new_index = add_tuple(tup, filtered);
           write(branch, info, k, new_index) >>= 
-            (() => bounds(new_index) |> Lwt.return);
+            (_ => bounds(new_index) |> Lwt.return);
         };
       | None => write(branch, info, k, [tup]) >>= 
-          (() => bounds([tup]) |> Lwt.return)
+          (_ => bounds([tup]) |> Lwt.return)
       };
 };
 

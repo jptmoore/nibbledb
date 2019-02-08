@@ -5,7 +5,6 @@ type datapoint = {
   value: float
 };
   
-  
 let datapoint_t =
   Irmin.Type.(
     record("datapoint", (tag, value) => {tag, value})
@@ -36,6 +35,7 @@ module Store = Irmin_unix.Git.FS.KV(Shard);
 
 type t = Store.t;
 type contents = Store.contents;
+type err = Store.write_error;
 
 let format_datapoint = (ts, tag, value) => {
   (ts,{tag: tag, value: value});
@@ -115,7 +115,8 @@ let get = (branch, k) => {
 };
 
 let remove = (branch, info, key_list) => {
-  Lwt_list.iter_s(k => add(branch, info, k, []), key_list);
+  // should really check return from add
+  Lwt_list.iter_s(k => Lwt.return(ignore(add(branch, info, k, []))), key_list);
 };
 
 

@@ -1,5 +1,6 @@
 type t;
 type datapoint;
+type err;
 
 let convert: list((int64, Ezjsonm.t)) => list((int64,datapoint));
 
@@ -14,6 +15,7 @@ let print: (list((int64,datapoint))) => unit;
 let create: (~file: string, ~bare: bool) => Lwt.t(t);
 
 let add: (Lwt.t(t), Irmin.Info.f, list(string), list((int64,datapoint))) => Lwt.t(unit);
+let add: (Lwt.t(t), Irmin.Info.f, list(string), list((int64,datapoint))) => Lwt.t(result(unit,err))
 
 let get: (Lwt.t(t), list(string)) => Lwt.t(list((int64,datapoint)));
 

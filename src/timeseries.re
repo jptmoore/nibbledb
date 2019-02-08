@@ -123,7 +123,7 @@ let handle_shard_overlap_worker = (ctx, k, shard, shard_lis, overlap_list, info)
               () => Index.update(ctx.index, info, k, new_range, overlap_list) >>= 
                 bounds => Membuf.set_disk_range(ctx.membuf, k, bounds) |> 
                   () => Shard.add(ctx.shard, info, key, new_shard) >>= 
-                    () => remove_leftover_shards(ctx, k, new_range, overlap_list, info);
+                    _ => remove_leftover_shards(ctx, k, new_range, overlap_list, info);
           | None => Lwt.return_unit;
         };
 };
@@ -225,7 +225,7 @@ let filter_shard_worker = (ctx, key, timestamps, info) => {
 };
 
 let delete_worker = (ctx, key_list, timestamps, info) => {
-  Lwt_list.iter_s(k => filter_shard_worker(ctx, k, timestamps, info), key_list);
+  Lwt_list.iter_s(k => Lwt.return(ignore(filter_shard_worker(ctx, k, timestamps, info))), key_list);
 };
 
 let make_shard_keys_worker = (id, lb, lis) => {
