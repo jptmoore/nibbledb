@@ -27,14 +27,13 @@ module Shard: Irmin.Contents.S with type t = shard = {
   type t = shard;
   let t = shard_t;
   let merge = merge;
-  let pp = Irmin.Type.pp_json(shard_t);
-  let of_string = (s) => Irmin.Type.decode_json(shard_t, Jsonm.decoder(`String(s)));
+  /* let pp = Irmin.Type.pp_json(shard_t); */
+  /* let of_string = (s) => Irmin.Type.decode_json(shard_t, Jsonm.decoder(`String(s))); */
 };
 
 module Store = Irmin_unix.Git.FS.KV(Shard);
 
 type t = Store.t;
-type contents = Store.contents;
 type err = Store.write_error;
 
 let format_datapoint = (ts, tag, value) => {

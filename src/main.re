@@ -50,7 +50,6 @@ let post_worker = (ctx, id, json) => {
 }
 
 let post = (ctx, id, body) => {
-  open Timeseries;
   open Ezjsonm;
   body |> Cohttp_lwt.Body.to_string >|=
     Ezjsonm.from_string >>= json => switch(json) {
@@ -83,14 +82,14 @@ let read_first = (ctx, ids, n, xargs) => {
 let read_since = (ctx, ids, from, xargs) => {
   open Timeseries;
   let id_list = String.split_on_char(',', ids);
-  read_since(~ctx=ctx.db, ~info=info("read_since"), ~id_list, ~from=Int64.of_string(from), ~xargs) >|=
+  read_since(~ctx=ctx.db, ~id_list, ~from=Int64.of_string(from), ~xargs) >|=
     Ezjsonm.to_string >>= s => Http_response.ok(~content=s, ()) 
 };
 
 let delete_since = (ctx, ids, from, xargs) => {
   open Timeseries;
   let id_list = String.split_on_char(',', ids);
-  read_since(~ctx=ctx.db, ~info=info("read_since"), ~id_list, ~from=Int64.of_string(from), ~xargs) >>=
+  read_since(~ctx=ctx.db, ~id_list, ~from=Int64.of_string(from), ~xargs) >>=
     json => delete(~ctx=ctx.db, ~info=info("delete_since"), ~id_list, ~json) >>= 
       () => Http_response.ok() 
 };
@@ -98,14 +97,14 @@ let delete_since = (ctx, ids, from, xargs) => {
 let read_range = (ctx, ids, from, to_, xargs) => {
   open Timeseries;
   let id_list = String.split_on_char(',', ids);
-  read_range(~ctx=ctx.db, ~info=info("read_range"), ~id_list, ~from=Int64.of_string(from), ~to_=Int64.of_string(to_), ~xargs) >|=
+  read_range(~ctx=ctx.db, ~id_list, ~from=Int64.of_string(from), ~to_=Int64.of_string(to_), ~xargs) >|=
     Ezjsonm.to_string >>= s => Http_response.ok(~content=s, ()) 
 };
 
 let delete_range = (ctx, ids, from, to_, xargs) => {
   open Timeseries;
   let id_list = String.split_on_char(',', ids);
-  read_range(~ctx=ctx.db, ~info=info("read_range"), ~id_list, ~from=Int64.of_string(from), ~to_=Int64.of_string(to_), ~xargs) >>=
+  read_range(~ctx=ctx.db, ~id_list, ~from=Int64.of_string(from), ~to_=Int64.of_string(to_), ~xargs) >>=
     json => delete(~ctx=ctx.db, ~info=info("delete_range"), ~id_list, ~json) >>=
       () => Http_response.ok()
 };
@@ -174,8 +173,8 @@ let server (~ctx) = {
 
 let register_signal_handlers = () => {
   Lwt_unix.(on_signal(Sys.sigterm, (_) => raise(Interrupt("Caught SIGTERM"))) |> 
-    id => on_signal(Sys.sighup, (_) => raise(Interrupt("Caught SIGHUP"))) |> 
-      id => on_signal(Sys.sigint, (_) => raise(Interrupt("Caught SIGINT"))));
+      _ => on_signal(Sys.sighup, (_) => raise(Interrupt("Caught SIGHUP"))) |> 
+      _ => on_signal(Sys.sigint, (_) => raise(Interrupt("Caught SIGINT"))));
 };
 
 let parse_cmdline = () => {
@@ -255,8 +254,8 @@ let flush_server = (ctx) => {
 
 let run_server = (~ctx) => {
   let () = {
-    try (Lwt_main.run(server(ctx))) {
-    | Interrupt(m) => ignore(flush_server(ctx));
+    try (Lwt_main.run(server(~ctx))) {
+    | Interrupt(_) => ignore(flush_server(ctx));
     };
   };
 };

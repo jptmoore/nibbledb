@@ -12,8 +12,8 @@ module Index: Irmin.Contents.S with type t = index = {
   type t = index;
   let t = index_t;
   let merge = merge;
-  let pp = Irmin.Type.pp_json(index_t);
-  let of_string = (s) => Irmin.Type.decode_json(index_t, Jsonm.decoder(`String(s)));
+  /* let pp = Irmin.Type.pp_json(index_t); */
+  /* let of_string = (s) => Irmin.Type.decode_json(index_t, Jsonm.decoder(`String(s))); */
 };
 
 module Store = Irmin_unix.Git.FS.KV(Index);

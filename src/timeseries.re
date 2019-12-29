@@ -17,7 +17,7 @@ let create = (~path_to_db, ~max_buffer_size, ~shard_size, ~show_files) => {
 };
 
 
-let get_milliseconds = () => {
+/* let get_milliseconds = () => {
   let t = Unix.gettimeofday() *. 1000.0;
   Int64.of_float(t);
 };
@@ -25,7 +25,7 @@ let get_milliseconds = () => {
 let get_nanoseconds = () => {
   let t = Unix.gettimeofday() *. 1000.0 *. 1000.0 *. 1000.0;
   Int64.of_float(t);
-};
+}; */
 
 let get_microseconds = () => {
   let t = Unix.gettimeofday() *. 1000.0 *. 1000.0;
@@ -54,11 +54,11 @@ let validate_json = (json) => {
   open Ezjsonm;
   open Int64;
   switch (get_dict(value(json))) {
-  | [("value",`Float n)] => 
+  | [("value",`Float _)] => 
       Some((get_microseconds(), json));
   | [("timestamp",`Float ts), ("value",`Float n)] => 
       Some((of_float(ts), dict([("value",`Float(n))])));
-  | [(tag_name, `String tag_value), ("value",`Float n)] => 
+  | [(_, `String _), ("value",`Float _)] => 
       Some((get_microseconds(), json));
   | [("timestamp",`Float ts), (tag_name, `String tag_value), ("value",`Float n)] => 
       Some((of_float(ts), dict([(tag_name, `String(tag_value)), ("value",`Float(n))])));
@@ -178,7 +178,6 @@ let number_of_records_in_memory = (ctx, k) => {
 };
 
 let length_worker = (~ctx, ~id as k) => {
-  open Ezjsonm;
   Index.get(ctx.index, k) >>= 
     data => {
       switch (data) {
@@ -192,7 +191,6 @@ let length_worker = (~ctx, ~id as k) => {
     
 
 let length = (~ctx, ~id_list) => {
-  open Ezjsonm;
   Lwt_list.fold_left_s((acc, id) => length_worker(~ctx, ~id) >|= 
     (x => x + acc), 0, id_list)
 };
@@ -232,7 +230,7 @@ let make_shard_keys_worker = (id, lb, lis) => {
   let rec loop = (acc, lis) =>
     switch (lis) {
     | [] => acc
-    | [(t1, t2), ...rest] when lb > t2 => loop(acc, rest)
+    | [(_, t2), ...rest] when lb > t2 => loop(acc, rest)
     | [(t1, t2), ...rest] => loop(List.cons(make_key(id, (t1, t2)), acc), rest)
     };
   loop([], lis);
@@ -264,7 +262,7 @@ let take = (n, lis) => {
   let rec loop = (n, acc, l) =>
     switch (l) {
     | [] => acc
-    | [xs, ...rest] when n == 0 => acc
+    | [_, ..._] when n == 0 => acc
     | [xs, ...rest] => loop(n - 1, cons(xs, acc), rest)
     };
   rev(loop(n, [], lis));
@@ -273,8 +271,8 @@ let take = (n, lis) => {
 let sort_result = (mode, lis) => {
   open List;
   switch (mode) {
-  | `Last => fast_sort(((x, y), (x', y')) => x < x' ? 1 : (-1), lis)
-  | `First => fast_sort(((x, y), (x', y')) => x > x' ? 1 : (-1), lis)
+  | `Last => fast_sort(((x, _), (x', _)) => x < x' ? 1 : (-1), lis)
+  | `First => fast_sort(((x, _), (x', _)) => x > x' ? 1 : (-1), lis)
   | `None => lis
   };
 };
@@ -322,7 +320,7 @@ let is_ascending = (ctx, k) => {
     (range) => {
       switch range {
       | None => false
-      | Some(((lb, ub))) => Membuf.is_ascending(ctx.membuf, k, ub)
+      | Some(((_, ub))) => Membuf.is_ascending(ctx.membuf, k, ub)
       }
     };
 };
@@ -333,7 +331,7 @@ let is_descending = (ctx, k) => {
     (range) => {
       switch range {
       | None => false
-      | Some(((lb, ub))) => Membuf.is_descending(ctx.membuf, k, lb)
+      | Some(((lb, _))) => Membuf.is_descending(ctx.membuf, k, lb)
       }
     };
 };
@@ -431,7 +429,7 @@ let return_filtered_data = (~sort, ~tag, data, func) => {
     data' => return_data(~sort, data')
 };
 
-let return_filtered_aggregate_data = (~sort, ~tag, data, func, agg_mode) => {
+let return_filtered_aggregate_data = (~tag, data, func, agg_mode) => {
   let (name, value) = tag;
   Shard.filter(data, func, (name,value)) |> 
     data' => return_aggregate_data(data', [agg_mode]);
@@ -453,9 +451,9 @@ let process_data = (data, args, ~sort) => {
   switch (args) {
     | [] => return_data(~sort, data)
     | ["filter", name, "equals", value] => return_filtered_data(~sort, ~tag=(name,value), data, String.equal)
-    | ["filter", name, "equals", value, agg_mode] => return_filtered_aggregate_data(~sort, ~tag=(name,value), data, String_extra.contains, agg_mode)
+    | ["filter", name, "equals", value, agg_mode] => return_filtered_aggregate_data(~tag=(name,value), data, String_extra.contains, agg_mode)
     | ["filter", name, "contains", value] => return_filtered_data(~sort, ~tag=(name,value), data, String_extra.contains)
-    | ["filter", name, "contains", value, agg_mode] => return_filtered_aggregate_data(~sort, ~tag=(name,value), data, String_extra.contains, agg_mode)
+    | ["filter", name, "contains", value, agg_mode] => return_filtered_aggregate_data(~tag=(name,value), data, String_extra.contains, agg_mode)
     | _ => return_aggregate_data(data, args)
     }
 };
@@ -523,7 +521,7 @@ let read_since_disk = (ctx, k, ts) => {
     | [] => acc
     | [(lb,ub), ...rest] when lb >= ts && ub >= ts =>
       loop(cons(make_filter_elt(k, (lb, ub), `Complete), acc), rest)
-    | [(lb,ub), ...rest] when ub >= ts =>
+    | [(lb,ub), ..._] when ub >= ts =>
       cons(make_filter_elt(k, (lb, ub), `Partial), acc)
     | [_, ...rest] => loop(acc, rest)
     };
@@ -548,7 +546,7 @@ let read_since_worker = (~ctx, ~id as k, ~from as ts) => {
       ((disk) => List.rev_append(Shard.convert(mem), disk))
 };
 
-let read_since = (~ctx, ~info, ~id_list, ~from as ts, ~xargs) => {
+let read_since = (~ctx, ~id_list, ~from as ts, ~xargs) => {
   Lwt_list.fold_left_s((acc, id) =>
     read_since_worker(~ctx=ctx, ~id=id, ~from=ts) >|= 
       (x => List.rev_append(x, acc)), [], id_list) >>= 
@@ -566,7 +564,7 @@ let read_range_worker = (~ctx, ~id as k, ~from as t1, ~to_ as t2) => {
         filter_until(t2) |> Lwt.return)
 };
 
-let read_range = (~ctx, ~info, ~id_list, ~from as t1, ~to_ as t2, ~xargs) => {
+let read_range = (~ctx, ~id_list, ~from as t1, ~to_ as t2, ~xargs) => {
   Lwt_list.fold_left_s((acc, id) =>
     read_range_worker(~ctx=ctx, ~id=id, ~from=t1, ~to_=t2) >|= 
       (x => List.rev_append(x, acc)), [], id_list) >>= 

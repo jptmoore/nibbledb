@@ -20,7 +20,7 @@ let read_first: (~ctx: t, ~info: Irmin.Info.f, ~id_list: list(string), ~n: int, 
 
 let read_earliest: (~ctx: t, ~info: Irmin.Info.f, ~id_list: list(string), ~xargs: list(string)) => Lwt.t(Ezjsonm.t);
 
-let read_since: (~ctx: t, ~info: Irmin.Info.f, ~id_list: list(string), ~from: int64, ~xargs: list(string)) => Lwt.t(Ezjsonm.t);
+let read_since: (~ctx: t, ~id_list: list(string), ~from: int64, ~xargs: list(string)) => Lwt.t(Ezjsonm.t);
 
-let read_range: (~ctx: t, ~info: Irmin.Info.f, ~id_list: list(string), ~from: int64, ~to_: int64, ~xargs: list(string)) => Lwt.t(Ezjsonm.t);
+let read_range: (~ctx: t, ~id_list: list(string), ~from: int64, ~to_: int64, ~xargs: list(string)) => Lwt.t(Ezjsonm.t);
 
