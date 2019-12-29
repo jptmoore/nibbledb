@@ -6,8 +6,8 @@ open Cohttp_lwt_unix;
 
 let path_to_db = ref("/tmp/nibble/");
 let http_port = ref(8000);
-let max_buffer_size = ref(10000);
-let shard_size = ref(1000);
+let max_buffer_size = ref(100000);
+let shard_size = ref(20000);
 let show_files = ref(false);
 let log_mode = ref(false);
 let tls_mode = ref(false);
