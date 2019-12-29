@@ -1,23 +1,23 @@
-FROM debian
+FROM ocaml/opam2:alpine
 
-RUN apt-get update && apt-get install -y build-essential m4 opam
+RUN sudo apk add m4
 
-RUN opam init -ya --compiler 4.06.1 \
-&& opam update \
-&& opam install -y depext oml reason ezjsonm \
+RUN opam update \
+&& opam install -y oml reason ezjsonm lwt_log \
 && opam depext -i tls ssl irmin-unix
 
 ADD src src
+RUN sudo chown -R opam:nogroup src
 RUN cd src && opam config exec -- dune build --profile release ./main.exe
 
-FROM debian
+FROM alpine
 
-RUN useradd -ms /bin/bash nibble
+RUN adduser nibble --disabled-password
 
 WORKDIR /home/nibble
-COPY --from=0 /src/_build/default/main.exe ./nibbledb
+COPY --from=0 /home/opam/opam-repository/src/_build/default/main.exe ./nibbledb
 
-RUN apt-get update && apt-get install -y libgmp10 libssl1.1 zlib1g openssl
+RUN apk update && apk add gmp libressl zlib openssl
 
 USER nibble
 
