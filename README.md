@@ -7,7 +7,7 @@ Nibbledb is a simple, light-weight time series database which uses [Irmin](https
 ## starting server
 
 ```bash
-docker run -p 8000:8000 -v /tmp/nibble:/tmp/nibble -it jptmoore/nibbledb /home/nibble/nibbledb --enable-tls
+docker run -p 8000:8000 -it jptmoore/nibbledb /home/nibble/nibbledb --enable-tls
 ```
 
 ## adding data
