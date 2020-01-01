@@ -95,6 +95,8 @@ curl -k https://localhost:8000/ts/foo,bar,baz,boz/last/5/sd
 {"sd":147.6999091329942}
 ```
 
+Other functions that can be used in above example are: **sum**,**max**,**min**,**mean**,**median**,**count**.
+
 ## deleting data
 
 The delete API supports range querying across multiple time series with support for filtering
