@@ -188,11 +188,20 @@ let length_worker = (~ctx, ~id as k) => {
           (mem => Lwt.return(disk + mem))
     };
 };
-    
+
+let length_in_memory_worker = (~ctx, ~id as k) => {
+  number_of_records_in_memory(ctx, k);
+};
+
 
 let length = (~ctx, ~id_list) => {
   Lwt_list.fold_left_s((acc, id) => length_worker(~ctx, ~id) >|= 
     (x => x + acc), 0, id_list)
+};
+
+let length_in_memory = (~ctx, ~id_list) => {
+  Lwt_list.fold_left_s((acc, id) => length_in_memory_worker(~ctx, ~id) >|= 
+    (x => x + acc), 0, id_list)  
 };
 
 let read_memory_all = (ctx, id) => {

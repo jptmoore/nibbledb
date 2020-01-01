@@ -10,6 +10,8 @@ let flush: (~ctx: t, ~info: Irmin.Info.f) => Lwt.t(unit);
 
 let length: (~ctx: t, ~id_list: list(string)) => Lwt.t(int);
 
+let length_in_memory: (~ctx: t, ~id_list: list(string)) => Lwt.t(int);
+
 let delete: (~ctx: t, ~info: Irmin.Info.f, ~id_list: list(string), ~json: Ezjsonm.t) => Lwt.t(unit);
 
 let read_last: (~ctx: t, ~info: Irmin.Info.f, ~id_list: list(string), ~n: int, ~xargs: list(string)) => Lwt.t(Ezjsonm.t);
