@@ -204,6 +204,15 @@ let length_in_memory = (~ctx, ~id_list) => {
     (x => x + acc), 0, id_list)  
 };
 
+let length_of_index_worker = (~ctx, ~id as k) => {
+  Index.length(ctx.index, k);
+};
+
+let length_of_index = (~ctx, ~id_list) => {
+  Lwt_list.fold_left_s((acc, id) => length_of_index_worker(~ctx, ~id) >|= 
+    (x => x + acc), 0, id_list)  
+};
+
 let read_memory_all = (ctx, id) => {
   Membuf.exists(ctx.membuf, id) ?
     Membuf.to_list(ctx.membuf, id) : Lwt.return([]);

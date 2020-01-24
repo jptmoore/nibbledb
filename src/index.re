@@ -89,6 +89,15 @@ let get = (branch, k) => {
     };
 };
 
+let length = (branch, k) => {
+  read(branch, k) >|=
+    (data) =>
+      switch data {
+      | None => 0;
+      | Some(index) => List.length(index);
+      }
+}
+
 let overlap_worker = (index, lis) => {
   let (x, y) = index;
   List.filter(((x', y')) => x <= y' && y >= x', lis);

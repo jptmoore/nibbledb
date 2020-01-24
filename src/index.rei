@@ -11,3 +11,5 @@ let get: (Lwt.t(t), string) => Lwt.t(option(list((int64, int64))));
 let overlap: (Lwt.t(t), string, (int64,int64)) => Lwt.t(list((int64, int64)));
 
 let range: (Lwt.t(t), string) => Lwt.t(option((int64,int64)));
+
+let length: (Lwt.t(t), string) => Lwt.t(int);

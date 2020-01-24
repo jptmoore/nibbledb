@@ -123,6 +123,13 @@ let length_in_memory = (ctx, ids) => {
     n => Http_response.ok(~content=Printf.sprintf("{\"length\":%d}", n), ()) 
 }
 
+let length_of_index = (ctx, ids) => {
+  open Timeseries;
+  let id_list = String.split_on_char(',', ids);
+  length_of_index(~ctx=ctx.db, ~id_list) >>=
+    n => Http_response.ok(~content=Printf.sprintf("{\"length\":%d}", n), ()) 
+}
+
 let get_req = (ctx, path_list) => {
   switch (path_list) {
   | [_, _, _, "ts", ids, "last", n, ...xargs] => read_last(ctx, ids, n, xargs)
@@ -133,6 +140,7 @@ let get_req = (ctx, path_list) => {
   | [_, _, _, "ts", ids, "range", from, to_, ...xargs] => read_range(ctx, ids, from, to_, xargs)
   | [_, _, _, "ts", ids, "length"] => length(ctx, ids)
   | [_, _, _, "ts", ids, "memory", "length"] => length_in_memory(ctx, ids)
+  | [_, _, _, "ts", ids, "index", "length"] => length_of_index(ctx, ids)
   | _ => Http_response.bad_request(~content="Error:unknown path\n", ())
   }
 };
