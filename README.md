@@ -109,3 +109,25 @@ curl -k https://localhost:8000/ts/baz/since/0
 ```json
 [{"timestamp":1545235536095244,"data":{"colour":"blue","value":2}}]
 ```
+
+## performance data
+
+Finding the number of values of a time series held in memory
+
+```bash
+curl -k https://localhost:8000/ts/foo/memory/length
+```
+
+```json
+{"length":5}
+```
+
+Finding the length of an index
+
+```bash
+curl -k https://localhost:8000/ts/foo/index/length
+```
+
+```json
+{"length":0}
+```
