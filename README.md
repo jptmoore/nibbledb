@@ -45,16 +45,6 @@ curl -k https://localhost:8000/ts/foo,bar/length
 {"length":10}
 ```
 
-Finding the number of values of a time series held in memory
-
-```bash
-curl -k https://localhost:8000/ts/foo/memory/length
-```
-
-```json
-{"length":5}
-```
-
 A range query from a specific point in time
 
 ```bash
