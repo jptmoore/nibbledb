@@ -121,3 +121,20 @@ curl -k https://localhost:8000/ts/foo/index/length
 ```json
 {"length":0}
 ```
+
+## maintenance
+
+Flushing the memory of all time series to disk
+
+```bash
+curl -k https://localhost:8000/ts/sync
+```
+
+```bash
+curl -k https://localhost:8000/ts/foo,bar,baz,boz/memory/length
+```
+
+```json
+{"length":0}
+```
+

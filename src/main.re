@@ -130,6 +130,11 @@ let length_of_index = (ctx, ids) => {
     n => Http_response.ok(~content=Printf.sprintf("{\"length\":%d}", n), ()) 
 }
 
+let timeseries_sync = (ctx) => {
+  Timeseries.flush(~ctx=ctx.db, ~info=info("sync")) >>=
+    () => Http_response.ok()
+}
+
 let get_req = (ctx, path_list) => {
   switch (path_list) {
   | [_, _, _, "ts", ids, "last", n, ...xargs] => read_last(ctx, ids, n, xargs)
@@ -141,6 +146,7 @@ let get_req = (ctx, path_list) => {
   | [_, _, _, "ts", ids, "length"] => length(ctx, ids)
   | [_, _, _, "ts", ids, "memory", "length"] => length_in_memory(ctx, ids)
   | [_, _, _, "ts", ids, "index", "length"] => length_of_index(ctx, ids)
+  | [_, _, _, "ts", "sync"] => timeseries_sync(ctx)
   | _ => Http_response.bad_request(~content="Error:unknown path\n", ())
   }
 };
