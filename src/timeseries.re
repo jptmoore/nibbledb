@@ -408,8 +408,17 @@ let read_memory_then_disk = (ctx, k, n, mode) => {
 
 let aggregate = (data, name, func) => {
   open Ezjsonm;
-  Shard.values(data) |> Array.of_list |> func |>
+  if (List.length(data) == 0) {
+    dict([]);
+  } else {
+    Shard.values(data) |> Array.of_list |> func |>
     result => dict([(name, `Float(result))]);
+  }
+};
+
+let sum = (data) => {
+  let sum = List.fold_left((+.), 0., Shard.values(data));
+  Ezjsonm.dict([("sum", `Float(sum))]);
 };
 
 let count = (data) => {
@@ -421,7 +430,7 @@ let return_aggregate_data = (data, arg) => {
   open Oml.Util.Array;
   open Oml.Statistics.Descriptive;
   switch (arg) {
-  | ["sum"] => aggregate(data, "sum", sumf);
+  | ["sum"] => sum(data);
   | ["max"] => aggregate(data, "max", max);
   | ["min"] => aggregate(data, "min", min);
   | ["mean"] => aggregate(data, "mean", mean);
