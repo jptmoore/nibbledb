@@ -61,7 +61,7 @@ let read = (branch, k) => {
 };
 
 let write = (branch, info, k, v) => {
-  branch >>= (branch' => Store.set(branch', ~info, [k], v));
+  branch >>= (branch' => Store.set_exn(branch', ~info, [k], v));
 };
 
 let update = (branch, info, k, tup, remove_list) => {

@@ -101,7 +101,7 @@ let create = (~file, ~bare) => {
 };
 
 let add = (branch, info, k, v) => {
-  branch >>= (branch' => Store.set(branch', ~info, k, v));
+  branch >>= (branch' => Store.set_exn(branch', ~info, k, v));
 };
 
 let sort_shard = (lis) => {
@@ -114,8 +114,7 @@ let get = (branch, k) => {
 };
 
 let remove = (branch, info, key_list) => {
-  // should really check return from add
-  Lwt_list.iter_s(k => Lwt.return(ignore(add(branch, info, k, []))), key_list);
+  Lwt_list.iter_s(k => add(branch, info, k, []), key_list);
 };
 
 
