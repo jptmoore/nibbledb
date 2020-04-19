@@ -100,6 +100,16 @@ curl -k https://localhost:8000/ts/baz/since/0
 [{"timestamp":1545235536095244,"data":{"colour":"blue","value":2}}]
 ```
 
+
+## General info
+
+To obtain a list of time series maintained by git. Note, this does not include what is in memory so you should carry out a sync command first to include those series.
+
+```bash
+curl -k https://localhost:8000/info/ts/names
+```
+
+
 ## performance data
 
 Finding the number of values of a time series held in memory
@@ -127,7 +137,7 @@ curl -k https://localhost:8000/ts/foo/index/length
 Flushing the memory of all time series to disk
 
 ```bash
-curl -k https://localhost:8000/ts/sync
+curl -k https://localhost:8000/ctl/ts/sync
 ```
 
 ```bash

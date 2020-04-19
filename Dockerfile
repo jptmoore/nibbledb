@@ -17,7 +17,7 @@ RUN adduser nibble --disabled-password
 WORKDIR /home/nibble
 COPY --from=0 /home/opam/opam-repository/src/_build/default/main.exe ./nibbledb
 
-RUN apk update && apk add gmp libressl zlib openssl
+RUN apk update && apk add gmp libressl zlib openssl git
 
 USER nibble
 
