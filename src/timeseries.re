@@ -4,6 +4,7 @@ type t = {
   membuf: Membuf.t,
   index: Lwt.t(Index.t),
   shard: Lwt.t(Shard.t),
+  fs: Fs.t,
   max_buffer_size: int,
   shard_size: int
 };
@@ -12,6 +13,7 @@ let create = (~path_to_db, ~max_buffer_size, ~shard_size, ~show_files) => {
   membuf: Membuf.create(),
   index: Index.create(~file=path_to_db ++ "_index_store", ~bare=!show_files),
   shard: Shard.create(~file=path_to_db ++ "_shard_store", ~bare=!show_files),
+  fs: Fs.create(~index_dir=path_to_db ++ "_index_store"),
   max_buffer_size: max_buffer_size,
   shard_size: shard_size
 };
@@ -597,3 +599,9 @@ let read_range = (~ctx, ~id_list, ~from as t1, ~to_ as t2, ~xargs) => {
       (x => List.rev_append(x, acc)), [], id_list) >>= 
         (data => process_data(data, xargs, ~sort=`Last))
 };
+
+let ts_names = (~ctx) => {
+  open Ezjsonm;
+  Fs.ts_names(ctx.fs) >|= strings 
+    >|= x => dict([("timeseries", value(x))])
+}
