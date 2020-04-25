@@ -103,7 +103,7 @@ curl -k https://localhost:8000/ts/baz/since/0
 
 ## General info
 
-To obtain a list of time series maintained by git. Note, this does not include what is in memory so you should carry out a sync command first to include those series.
+To obtain the current list of time series available.
 
 ```bash
 curl -k https://localhost:8000/info/ts/names

@@ -25,3 +25,5 @@ let empty_series: (t, string) => Lwt.t(unit);
 let set_disk_range: (t, string, option((int64, int64))) => unit;
 
 let get_disk_range: (t, string) => option((int64, int64));
+
+let get_keys: (t) => list(string);

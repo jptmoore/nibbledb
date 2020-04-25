@@ -602,6 +602,8 @@ let read_range = (~ctx, ~id_list, ~from as t1, ~to_ as t2, ~xargs) => {
 
 let ts_names = (~ctx) => {
   open Ezjsonm;
-  Fs.ts_names(ctx.fs) >|= strings 
-    >|= x => dict([("timeseries", value(x))])
+  let mem_list = Membuf.get_keys(ctx.membuf);
+  Fs.ts_names(ctx.fs) >|= List.rev_append(mem_list) >|=
+    List.sort_uniq((x,y) => compare(x,y)) >|=
+      strings >|= x => dict([("timeseries", value(x))])
 }

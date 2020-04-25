@@ -28,6 +28,10 @@ let empty = (ctx) => {
   Lwt_list.iter_s((k) => empty_series(ctx, k), keys);
 };
 
+let get_keys = (ctx) => {
+  Membufhash.get_keys(ctx.ht);
+}
+
 let handle_write = (ctx, id, elt) =>
   if (Membufhash.exists(ctx.ht, id)) {
     let q = Membufhash.get(ctx.ht, id);
