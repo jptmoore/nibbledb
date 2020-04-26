@@ -122,6 +122,16 @@ curl -k https://localhost:8000/ts/foo/memory/length
 {"length":5}
 ```
 
+Finding the number of values of a time series held on disk
+
+```bash
+curl -k https://localhost:8000/ts/foo/disk/length
+```
+
+```json
+{"length":0}
+```
+
 Finding the length of an index
 
 ```bash

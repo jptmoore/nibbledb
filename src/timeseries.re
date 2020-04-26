@@ -179,15 +179,13 @@ let number_of_records_in_memory = (ctx, k) => {
   Membuf.(exists(ctx.membuf, k) ? length(ctx.membuf, k) : Lwt.return(0));
 };
 
-let length_worker = (~ctx, ~id as k) => {
+let length_on_disk_worker = (~ctx, ~id as k) => {
   Index.get(ctx.index, k) >>= 
     data => {
       switch (data) {
       | Some(lis) => number_of_records_on_disk(ctx, k, lis)
-      | None => 0 |> Lwt.return
-      } >>= disk => 
-        number_of_records_in_memory(ctx, k) >>= 
-          (mem => Lwt.return(disk + mem))
+      | None => Lwt.return(0)
+      }
     };
 };
 
@@ -195,15 +193,20 @@ let length_in_memory_worker = (~ctx, ~id as k) => {
   number_of_records_in_memory(ctx, k);
 };
 
-
-let length = (~ctx, ~id_list) => {
-  Lwt_list.fold_left_s((acc, id) => length_worker(~ctx, ~id) >|= 
+let length_on_disk = (~ctx, ~id_list) => {
+  Lwt_list.fold_left_s((acc, id) => length_on_disk_worker(~ctx, ~id) >|= 
     (x => x + acc), 0, id_list)
 };
 
 let length_in_memory = (~ctx, ~id_list) => {
   Lwt_list.fold_left_s((acc, id) => length_in_memory_worker(~ctx, ~id) >|= 
     (x => x + acc), 0, id_list)  
+};
+
+let length = (~ctx, ~id_list) => {
+  length_in_memory(ctx, id_list) >>= n1 =>
+    length_on_disk(ctx, id_list) >|= n2 =>
+      n1 + n2;
 };
 
 let length_of_index_worker = (~ctx, ~id as k) => {

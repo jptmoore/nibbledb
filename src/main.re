@@ -123,6 +123,13 @@ let length_in_memory = (ctx, ids) => {
     n => Http_response.ok(~content=Printf.sprintf("{\"length\":%d}", n), ()) 
 }
 
+let length_on_disk = (ctx, ids) => {
+  open Timeseries;
+  let id_list = String.split_on_char(',', ids);
+  length_on_disk(~ctx=ctx.db, ~id_list) >>=
+    n => Http_response.ok(~content=Printf.sprintf("{\"length\":%d}", n), ()) 
+}
+
 let length_of_index = (ctx, ids) => {
   open Timeseries;
   let id_list = String.split_on_char(',', ids);
@@ -150,6 +157,7 @@ let get_req = (ctx, path_list) => {
   | [_, _, _, "ts", ids, "range", from, to_, ...xargs] => read_range(ctx, ids, from, to_, xargs)
   | [_, _, _, "ts", ids, "length"] => length(ctx, ids)
   | [_, _, _, "ts", ids, "memory", "length"] => length_in_memory(ctx, ids)
+  | [_, _, _, "ts", ids, "disk", "length"] => length_on_disk(ctx, ids)
   | [_, _, _, "ts", ids, "index", "length"] => length_of_index(ctx, ids)
   | [_, _, _, "info", "ts", "names"] => timeseries_names(ctx)
   | [_, _, _, "ctl", "ts", "sync"] => timeseries_sync(ctx)
