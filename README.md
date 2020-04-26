@@ -103,12 +103,17 @@ curl -k https://localhost:8000/ts/baz/since/0
 
 ## General info
 
-To obtain the current list of time series available.
+To obtain the current list of time series available
 
 ```bash
 curl -k https://localhost:8000/info/ts/names
 ```
 
+To get stats on current time series
+
+```bash
+curl -k https://localhost:8000/info/ts/stats
+```
 
 ## performance data
 

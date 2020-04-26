@@ -30,4 +30,6 @@ let read_since: (~ctx: t, ~id_list: list(string), ~from: int64, ~xargs: list(str
 
 let read_range: (~ctx: t, ~id_list: list(string), ~from: int64, ~to_: int64, ~xargs: list(string)) => Lwt.t(Ezjsonm.t);
 
-let ts_names: (~ctx: t) => Lwt.t(Ezjsonm.t);
+let names: (~ctx: t) => Lwt.t(Ezjsonm.t);
+
+let stats: (~ctx: t) => Lwt.t(Ezjsonm.t);

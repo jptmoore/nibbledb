@@ -603,10 +603,73 @@ let read_range = (~ctx, ~id_list, ~from as t1, ~to_ as t2, ~xargs) => {
         (data => process_data(data, xargs, ~sort=`Last))
 };
 
-let ts_names = (~ctx) => {
+let names = (~ctx) => {
   open Ezjsonm;
   let mem_list = Membuf.get_keys(ctx.membuf);
   Fs.ts_names(ctx.fs) >|= List.rev_append(mem_list) >|=
     List.sort_uniq((x,y) => compare(x,y)) >|=
       strings >|= x => dict([("timeseries", value(x))])
+}
+
+let ts_names_value = (x) => {
+  open Ezjsonm;
+  get_strings(find(x, ["timeseries"]));
+}
+
+let lengths_worker = (ctx, id) => {
+  open Ezjsonm;
+  length(ctx, [id]) >|=
+    x => dict([(id, int(x))])
+} 
+
+let lengths_in_memory_worker = (ctx, id) => {
+  open Ezjsonm;
+  length_in_memory(ctx, [id]) >|=
+    x => dict([(id, int(x))])
+} 
+
+let lengths_on_disk_worker = (ctx, id) => {
+  open Ezjsonm;
+  length_on_disk(ctx, [id]) >|=
+    x => dict([(id, int(x))])
+}
+
+let lengths_of_index_worker = (ctx, id) => {
+  open Ezjsonm;
+  length_of_index(ctx, [id]) >|=
+    x => dict([(id, int(x))])
+} 
+
+let lengths = (ctx, ts) => {
+  open Ezjsonm;
+  Lwt_list.map_s(x => lengths_worker(ctx, x), ts) >|=
+    x => dict([("length", list(y=>y, x))])
+}
+
+let lengths_in_memory = (ctx, ts) => {
+  open Ezjsonm;
+  Lwt_list.map_s(x => lengths_in_memory_worker(ctx, x), ts) >|=
+    x => dict([("length_in_memory", list(y=>y, x))])
+}
+
+let lengths_on_disk = (ctx, ts) => {
+  open Ezjsonm;
+  Lwt_list.map_s(x => lengths_on_disk_worker(ctx, x), ts) >|=
+    x => dict([("length_on_disk", list(y=>y, x))])
+}
+
+let lengths_of_index = (ctx, ts) => {
+  open Ezjsonm;
+  Lwt_list.map_s(x => lengths_of_index_worker(ctx, x), ts) >|=
+    x => dict([("length_of_index", list(y=>y, x))])
+}
+
+let stats = (~ctx) => {
+  open Ezjsonm;
+  names(ctx) >|= ts_names_value >>=
+    ts => lengths(ctx, ts) >>=
+      length => lengths_in_memory(ctx, ts) >>=
+        length_in_memory => lengths_on_disk(ctx, ts) >>=
+          length_on_disk => lengths_of_index(ctx, ts) >|=
+            length_of_index => list(x=>x, [length, length_in_memory, length_on_disk, length_of_index])
 }

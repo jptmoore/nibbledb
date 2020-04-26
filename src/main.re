@@ -143,7 +143,12 @@ let timeseries_sync = (ctx) => {
 }
 
 let timeseries_names = (ctx) => {
-  Timeseries.ts_names(~ctx=ctx.db) >|=
+  Timeseries.names(~ctx=ctx.db) >|=
+    Ezjsonm.to_string >>= s => Http_response.ok(~content=s, ())
+}
+
+let timeseries_stats = (ctx) => {
+  Timeseries.stats(~ctx=ctx.db) >|=
     Ezjsonm.to_string >>= s => Http_response.ok(~content=s, ())
 }
 
@@ -160,6 +165,7 @@ let get_req = (ctx, path_list) => {
   | [_, _, _, "ts", ids, "disk", "length"] => length_on_disk(ctx, ids)
   | [_, _, _, "ts", ids, "index", "length"] => length_of_index(ctx, ids)
   | [_, _, _, "info", "ts", "names"] => timeseries_names(ctx)
+  | [_, _, _, "info", "ts", "stats"] => timeseries_stats(ctx)
   | [_, _, _, "ctl", "ts", "sync"] => timeseries_sync(ctx)
   | _ => Http_response.bad_request(~content="Error:unknown path\n", ())
   }
