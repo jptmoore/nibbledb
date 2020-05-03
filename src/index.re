@@ -32,15 +32,12 @@ let filter_list = (rem_lis, lis) => {
 
 let bounds = (lis) => {
   if (lis == []) {
-    None;
-  } else {
-    let xs = List.map(((x, _)) => x, lis) |> Array.of_list;
-    let ys = List.map(((_, y)) => y, lis) |> Array.of_list;
-    let x = Oml.Util.Array.min(xs);
-    let y = Oml.Util.Array.max(ys);
-    Some((x, y));
-  };
-};
+      None;
+    } else {  
+      Some(List.fold_left(((x,y), (x',y')) => 
+        (min(x,x'),max(y,y')), (Int64.max_int,Int64.min_int), lis))
+    }
+}
 
 let tup_sort = (lis) => {
   let cmp = ((_, y), (_, y')) => y < y' ? 1 : (-1);
@@ -71,22 +68,16 @@ let update = (branch, info, k, tup, remove_list) => {
       | Some((curr_lis)) => {
           let filtered = filter_list(remove_list, curr_lis);
           let new_index = add_tuple(tup, filtered);
-          write(branch, info, k, new_index) >>= 
-            (_ => bounds(new_index) |> Lwt.return);
+          write(branch, info, k, new_index) >|=
+            () => bounds(new_index)
         };
-      | None => write(branch, info, k, [tup]) >>= 
-          (_ => bounds([tup]) |> Lwt.return)
+      | None => write(branch, info, k, [tup]) >|=
+          () => bounds([tup])
       };
 };
 
 let get = (branch, k) => {
-  read(branch, k) >>= 
-    (data) => {
-      switch data {
-      | Some((lis)) => Some(lis)
-      | None => None
-      }|> Lwt.return
-    };
+  read(branch, k)
 };
 
 let length = (branch, k) => {
@@ -104,24 +95,25 @@ let overlap_worker = (index, lis) => {
 };
 
 let overlap = (branch, k, index) => {
-  read(branch, k) >>= 
+  read(branch, k) >|=
       (data) => {
         switch data {
         | Some((lis)) => overlap_worker(index, lis)
         | None => []
-        } |> Lwt.return
+        }
       };
 };
 
 let range = (branch, k) => {
-  read(branch, k) >>= 
+  read(branch, k) >|=
     (data) => {
       switch data {
       | None => None
       | Some((lis)) => bounds(lis)
-      } |> Lwt.return
+      }
     };
 };
+
 
 
 
