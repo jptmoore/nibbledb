@@ -152,6 +152,12 @@ let timeseries_stats = (ctx) => {
     Ezjsonm.to_string >>= s => Http_response.ok(~content=s, ())
 }
 
+let health_check = (ctx) => {
+  open Ezjsonm;
+  let json = dict([("status", string("ok"))]);
+  Http_response.ok(~content=to_string(json), ())
+}
+
 let get_req = (ctx, path_list) => {
   switch (path_list) {
   | [_, _, _, "ts", ids, "last", n, ...xargs] => read_last(ctx, ids, n, xargs)
@@ -166,6 +172,7 @@ let get_req = (ctx, path_list) => {
   | [_, _, _, "ts", ids, "index", "length"] => length_of_index(ctx, ids)
   | [_, _, _, "info", "ts", "names"] => timeseries_names(ctx)
   | [_, _, _, "info", "ts", "stats"] => timeseries_stats(ctx)
+  | [_, _, _, "info", "status"] => health_check(ctx)
   | [_, _, _, "ctl", "ts", "sync"] => timeseries_sync(ctx)
   | _ => Http_response.bad_request(~content="Error:unknown path\n", ())
   }
