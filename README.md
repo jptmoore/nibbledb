@@ -1,6 +1,6 @@
 # Introduction
 
-Nibbledb is a simple, light-weight time series database which uses [Irmin](https://github.com/mirage/irmin) to store data within Git. The goal is to run over a unikernel using [MirageOS](https://mirage.io/). An experimental client is available [here](https://github.com/jptmoore/nibbleql) and a gateway to support scaling across multiple databases exists [here](https://github.com/jptmoore/nibblegw).
+Nibbledb is a simple, light-weight time series database which uses [Irmin](https://irmin.org/) to store data within Git. The goal is to run over a unikernel using [MirageOS](https://mirage.io/). An experimental client is available [here](https://github.com/jptmoore/nibbleql) and a gateway to support scaling across multiple databases exists [here](https://github.com/jptmoore/nibblegw).
 
 # Tutorial
 
