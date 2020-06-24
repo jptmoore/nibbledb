@@ -16,6 +16,8 @@ let length_on_disk: (~ctx: t, ~id_list: list(string)) => Lwt.t(int);
 
 let length_of_index: (~ctx: t, ~id_list: list(string)) => Lwt.t(int);
 
+let get_index: (~ctx: t, ~id: string) => Lwt.t(Ezjsonm.t);
+
 let delete: (~ctx: t, ~info: Irmin.Info.f, ~id_list: list(string), ~json: Ezjsonm.t) => Lwt.t(unit);
 
 let read_last: (~ctx: t, ~info: Irmin.Info.f, ~id_list: list(string), ~n: int, ~xargs: list(string)) => Lwt.t(Ezjsonm.t);

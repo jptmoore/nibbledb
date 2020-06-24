@@ -137,6 +137,12 @@ let length_of_index = (ctx, ids) => {
     n => Http_response.ok(~content=Printf.sprintf("{\"length\":%d}", n), ()) 
 }
 
+let get_index = (ctx, id) => {
+  open Timeseries;
+  get_index(~ctx=ctx.db, ~id) >|=
+    Ezjsonm.to_string >>= s => Http_response.ok(~content=s, ()) 
+}
+
 let timeseries_sync = (ctx) => {
   Timeseries.flush(~ctx=ctx.db, ~info=info("sync")) >>=
     () => Http_response.ok()
@@ -170,6 +176,7 @@ let get_req = (ctx, path_list) => {
   | [_, _, _, "ts", ids, "memory", "length"] => length_in_memory(ctx, ids)
   | [_, _, _, "ts", ids, "disk", "length"] => length_on_disk(ctx, ids)
   | [_, _, _, "ts", ids, "index", "length"] => length_of_index(ctx, ids)
+  | [_, _, _, "ts", id, "index"] => get_index(ctx, id)
   | [_, _, _, "info", "ts", "names"] => timeseries_names(ctx)
   | [_, _, _, "info", "ts", "stats"] => timeseries_stats(ctx)
   | [_, _, _, "info", "status"] => health_check(ctx)
