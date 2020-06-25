@@ -459,7 +459,7 @@ let return_aggregate_data = (data, arg) => {
   | ["sd"] => aggregate(data, "sd", sd);
   | ["median"] => aggregate(data, "median", median);
   | ["count"] => count(data)
-  | _ => failwith("Error:unknown path\n")
+  | _ => failwith("unknown path")
   } |> Lwt.return;
 };
 

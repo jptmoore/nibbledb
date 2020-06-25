@@ -47,7 +47,7 @@ let convert_worker = (ts, datapoint) => {
       format_datapoint(ts, None, get_float(n));
   | [(s1,s2), (_, n)] => 
       format_datapoint(ts, Some((s1, get_string(s2))), get_float(n));
-  | _ => failwith("Error:badly formatted JSON");
+  | _ => failwith("badly formatted json");
   }
 };
 

@@ -45,14 +45,22 @@ let post_worker = (ctx, id, json) => {
   open Timeseries;
   switch(validate_json(json)) {
   | Some((t,j)) => write(~ctx=ctx.db, ~info=info("write"), ~timestamp=t, ~id=id, ~json=j)
-  | None => failwith("Error:badly formatted JSON\n")
+  | None => failwith("badly formatted json")
+  };
+}
+
+let handle_json(data) {
+  try {
+    Ezjsonm.from_string(data)
+  } {
+  | _ => failwith("badly formatted json");
   };
 }
 
 let post = (ctx, id, body) => {
   open Ezjsonm;
   body |> Cohttp_lwt.Body.to_string >|=
-    Ezjsonm.from_string >>= json => switch(json) {
+    handle_json >>= json => switch(json) {
     | `O(_) => post_worker(ctx, id, json) 
     | `A(lis) => Lwt_list.iter_s(x => post_worker(ctx, id, `O(get_dict(x))), lis)
     } >>= fun () => Http_response.ok()
@@ -61,7 +69,7 @@ let post = (ctx, id, body) => {
 let post_req = (ctx, path_list, body) => {
   switch (path_list) {
   | [_, _, _, "ts", id] => post(ctx, id, body)
-  | _ => failwith("Error:unknown path\n")
+  | _ => failwith("unknown path")
   }
 };
 
