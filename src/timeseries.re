@@ -60,9 +60,13 @@ let validate_json = (json) => {
       Some((get_microseconds(), json));
   | [("timestamp",`Float ts), ("value",`Float n)] => 
       Some((of_float(ts), dict([("value",`Float(n))])));
+  | [("timestamp", `Float ts), ("data", `O([("value", `Float n)]))] =>
+      Some((of_float(ts), dict([("value",`Float(n))])));
   | [(_, `String _), ("value",`Float _)] => 
       Some((get_microseconds(), json));
   | [("timestamp",`Float ts), (tag_name, `String tag_value), ("value",`Float n)] => 
+      Some((of_float(ts), dict([(tag_name, `String(tag_value)), ("value",`Float(n))])));
+  | [("timestamp", `Float(ts)), ("data", `O([(tag_name, `String(tag_value)), ("value", `Float(n))]))] =>
       Some((of_float(ts), dict([(tag_name, `String(tag_value)), ("value",`Float(n))])));
   | _ => None;
   }
