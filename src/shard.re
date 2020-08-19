@@ -1,14 +1,14 @@
 open Lwt.Infix;
 
 type datapoint = {
-  tag: option((string,string)),
+  tag: option(list((string,string))),
   value: float
 };
   
 let datapoint_t =
   Irmin.Type.(
     record("datapoint", (tag, value) => {tag, value})
-    |+ field("tag", option(pair(string,string)), (t) => t.tag)
+    |+ field("tag", option(list(pair(string,string))), (t) => t.tag)
     |+ field("value", float, (t) => t.value)
     |> sealr
 );
@@ -36,6 +36,30 @@ module Store = Irmin_unix.Git.FS.KV(Shard);
 type t = Store.t;
 type err = Store.write_error;
 
+let make_json_tag = (data) => {
+  open List;
+  let rec loop = (acc, l) => {
+    switch (l) {
+    | `A([]) => rev(acc);
+    | `A([`O([(s1, `String(s2))]), ...rest]) => loop(cons((s1,s2), acc), `A(rest));
+    | _ => failwith("badly formatted json");
+    }
+  };
+  loop([], data);    
+}
+
+let make_native_tag = (data) => {
+  open List;
+  let rec loop = (acc, l) => {
+    switch (l) {
+    | [] => `A(rev(acc));
+    | [(name,value), ...rest] => 
+        loop(cons(Ezjsonm.dict([(name, `String(value))]), acc), rest);
+    }
+  };
+  loop([], data);  
+}
+
 let format_datapoint = (ts, tag, value) => {
   (ts,{tag: tag, value: value});
 };
@@ -43,10 +67,10 @@ let format_datapoint = (ts, tag, value) => {
 let convert_worker = (ts, datapoint) => {
   open Ezjsonm;
   switch(datapoint) {
-  | [(_, n)] => 
+  | `O([("value", `Float(n))]) => 
       format_datapoint(ts, None, get_float(n));
-  | [(s1,s2), (_, n)] => 
-      format_datapoint(ts, Some((s1, get_string(s2))), get_float(n));
+  | `O([("tag", tag), ("value", `Float(n))]) => 
+      format_datapoint(ts, Some(make_json_tag(tag)), get_float(n));
   | _ => failwith("badly formatted json");
   }
 };
@@ -57,8 +81,7 @@ let convert = (data) => {
     switch (l) {
     | [] => rev(acc);
     | [ (ts, json), ...rest] => {
-          let dp = Ezjsonm.get_dict(Ezjsonm.value(json));
-          loop(cons(convert_worker(ts, dp), acc), rest);
+          loop(cons(convert_worker(ts, json), acc), rest);
         };
     }
   };
@@ -71,7 +94,7 @@ let to_json_worker = (ts, datapoint) => {
   switch(datapoint) {
   | {tag: t, value: v} => {
       switch(t) {
-      | Some((s1,s2)) => dict([("timestamp", int64(ts)), ("data", dict([(s1, string(s2)), ("value", float(v))]))]);
+      | Some(t) => dict([("timestamp", int64(ts)), ("tag", make_native_tag(t)), ("data", dict([("value", float(v))]))]);
       | None => dict([("timestamp", int64(ts)), ("data", dict([("value", float(v))]))]);
       }
     }
