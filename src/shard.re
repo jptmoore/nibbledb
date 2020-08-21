@@ -109,13 +109,30 @@ let values = (data) => {
   List.rev_map(((_,dp)) => dp.value, data);
 };
 
-let filter = (data, func, tag) => {
-  let (name, value) = tag;
+
+let filter_worker_helper = (name, value, tagset, func) => {
+  switch (List.assoc_opt(name, tagset)) {
+    | None => false
+    | Some(value') => func(value, value')
+  }
+}
+
+let filter_worker = (data, func, name, value) => {
   List.filter(((_,dp)) => switch (dp.tag) {
   | None => false;
-  | Some((name',value')) => (name == name') && (func(value, value')) 
+  | Some(tagset) => filter_worker_helper(name, value, tagset, func)
   }, data)
 };
+
+let filter = (data, func, tag) => {
+  let (name_set, value_set) = tag;
+  let names = String.split_on_char(',', name_set); 
+  let values = String.split_on_char(',', value_set); 
+  List.length(names) != List.length(values) ? failwith("invalid filter format") : ()
+  List.fold_left2((acc, name, value) => 
+    filter_worker(data, func, name, value) |>
+      List.rev_append(acc), [], names, values);
+}
 
 let create = (~file, ~bare) => {
   let config = Irmin_git.config(file, ~bare);

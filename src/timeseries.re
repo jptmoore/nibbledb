@@ -473,14 +473,12 @@ let read_last_worker = (~ctx, ~id as k, ~n, ~info) => {
 };
 
 let return_filtered_data = (~sort, ~tag, data, func) => {
-  let (name, value) = tag;
-  Shard.filter(data, func, (name,value)) |> 
+  Shard.filter(data, func, tag) |> 
     data' => return_data(~sort, data')
 };
 
 let return_filtered_aggregate_data = (~tag, data, func, agg_mode) => {
-  let (name, value) = tag;
-  Shard.filter(data, func, (name,value)) |> 
+  Shard.filter(data, func, tag) |> 
     data' => return_aggregate_data(data', [agg_mode]);
 };
 
