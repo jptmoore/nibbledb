@@ -36,7 +36,7 @@ module Store = Irmin_unix.Git.FS.KV(Shard);
 type t = Store.t;
 type err = Store.write_error;
 
-let make_json_tag = (data) => {
+let make_native_tag = (data) => {
   open List;
   let rec loop = (acc, l) => {
     switch (l) {
@@ -48,7 +48,7 @@ let make_json_tag = (data) => {
   loop([], data);    
 }
 
-let make_native_tag = (data) => {
+let make_json_tag = (data) => {
   open List;
   let rec loop = (acc, l) => {
     switch (l) {
@@ -71,7 +71,7 @@ let convert_worker = (ts, datapoint) => {
   | [(_, n)] =>
       format_datapoint(ts, None, get_float(n));
   | [("tag", tag), (_, n)] => 
-      format_datapoint(ts, Some(make_json_tag(tag)), get_float(n));  
+      format_datapoint(ts, Some(make_native_tag(tag)), get_float(n));  
   | _ => failwith("badly formatted json");
   }
 };
@@ -96,7 +96,7 @@ let to_json_worker = (ts, datapoint) => {
   switch(datapoint) {
   | {tag: t, value: v} => {
       switch(t) {
-      | Some(t) => dict([("timestamp", int64(ts)), ("tag", make_native_tag(t)), ("data", dict([("value", float(v))]))]);
+      | Some(t) => dict([("timestamp", int64(ts)), ("tag", make_json_tag(t)), ("data", dict([("value", float(v))]))]);
       | None => dict([("timestamp", int64(ts)), ("value", float(v))]);
       }
     }
