@@ -97,7 +97,7 @@ let to_json_worker = (ts, datapoint) => {
   | {tag: t, value: v} => {
       switch(t) {
       | Some(t) => dict([("timestamp", int64(ts)), ("tag", make_native_tag(t)), ("data", dict([("value", float(v))]))]);
-      | None => dict([("timestamp", int64(ts)), ("data", dict([("value", float(v))]))]);
+      | None => dict([("timestamp", int64(ts)), ("value", float(v))]);
       }
     }
   }
