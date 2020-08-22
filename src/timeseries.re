@@ -58,14 +58,12 @@ let validate_json = (json) => {
   switch (get_dict(value(json))) {
   | [("value",`Float _)] => 
       Some((get_microseconds(), json));
-  | [("timestamp",`Float ts), ("value",`Float n)] => 
-      Some((of_float(ts), dict([("value",`Float(n))])));
-  | [(_, `String _), ("value",`Float _)] => 
-      Some((get_microseconds(), json));
-  | [("timestamp",`Float ts), ("tag", tag), ("value",`Float n)] => 
-      Some((of_float(ts), dict([("tag", tag), ("value",`Float(n))])));
   | [("tag", tag), ("value",`Float n)] => 
       Some((get_microseconds(), json));
+  | [("timestamp",`Float ts), ("value",`Float n)] => 
+      Some((of_float(ts), dict([("value",`Float(n))])));
+  | [("timestamp",`Float ts), ("tag", tag), ("value",`Float n)] => 
+      Some((of_float(ts), dict([("tag", tag), ("value",`Float(n))])));
   | _ => None;
   }
 };
