@@ -64,13 +64,14 @@ let format_datapoint = (ts, tag, value) => {
   (ts,{tag: tag, value: value});
 };
 
+
 let convert_worker = (ts, datapoint) => {
   open Ezjsonm;
   switch(datapoint) {
-  | `O([("value", `Float(n))]) => 
+  | [(_, n)] =>
       format_datapoint(ts, None, get_float(n));
-  | `O([("tag", tag), ("value", `Float(n))]) => 
-      format_datapoint(ts, Some(make_json_tag(tag)), get_float(n));
+  | [("tag", tag), (_, n)] => 
+      format_datapoint(ts, Some(make_json_tag(tag)), get_float(n));  
   | _ => failwith("badly formatted json");
   }
 };
@@ -81,7 +82,8 @@ let convert = (data) => {
     switch (l) {
     | [] => rev(acc);
     | [ (ts, json), ...rest] => {
-          loop(cons(convert_worker(ts, json), acc), rest);
+          let dp = Ezjsonm.get_dict(Ezjsonm.value(json));
+          loop(cons(convert_worker(ts, dp), acc), rest);
         };
     }
   };
