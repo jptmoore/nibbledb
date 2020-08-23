@@ -126,21 +126,13 @@ let filter_worker = (data, func, name, value) => {
   }, data)
 };
 
-let or_filter = (data, func, tag) => {
-  let (name_set, value_set) = tag;
-  let names = String.split_on_char(',', name_set); 
-  let values = String.split_on_char(',', value_set); 
-  List.length(names) != List.length(values) ? failwith("invalid filter format") : ()
+let or_filter = (data, func, names, values) => {
   List.fold_left2((acc, name, value) => 
     filter_worker(data, func, name, value) |>
       List.rev_append(acc), [], names, values);
 }
 
-let filter = (data, func, tag) => {
-  let (name_set, value_set) = tag;
-  let names = String.split_on_char(',', name_set); 
-  let values = String.split_on_char(',', value_set); 
-  List.length(names) != List.length(values) ? failwith("invalid filter format") : ()
+let and_filter = (data, func, names, values) => {
   let rec loop = (res, names, values) => {
     switch (names, values) {
     | ([], []) => List.rev(res);
@@ -151,6 +143,28 @@ let filter = (data, func, tag) => {
   };
   loop(data, names, values);
 };
+
+let same_names = (name, names) => {
+  let rec loop = (names) => {
+    switch (names) {
+    | [] => true;
+    | [x, ...xs] => name == x ? loop(xs) : false;
+    }
+  }
+  loop(names);
+}
+
+let filter = (data, func, tag) => {
+  let (name_set, value_set) = tag;
+  let names = String.split_on_char(',', name_set); 
+  let values = String.split_on_char(',', value_set); 
+  List.length(names) != List.length(values) ? failwith("invalid filter format") : ()
+  if (same_names(List.hd(names), names)) {
+    or_filter(data, func, names, values);
+  } else {
+    and_filter(data, func, names, values);
+  }
+}
 
 let create = (~file, ~bare) => {
   let config = Irmin_git.config(file, ~bare);
