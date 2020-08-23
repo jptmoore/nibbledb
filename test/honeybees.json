@@ -1,0 +1,10 @@
+[
+    {"timestamp": 1439856000000000, "tag": [{"location":"1"},{"scientist":"langstroth"}], "value": 23},
+    {"timestamp": 1439856000000000, "tag": [{"location":"1"},{"scientist":"perpetua"}], "value": 30},
+    {"timestamp": 1439856360000000, "tag": [{"location":"1"},{"scientist":"langstroth"}], "value": 28},
+    {"timestamp": 1439856360000000, "tag": [{"location":"1"},{"scientist":"perpetua"}], "value": 28},
+    {"timestamp": 1439877240000000, "tag": [{"location":"2"},{"scientist":"langstroth"}], "value": 11},
+    {"timestamp": 1439877600000000, "tag": [{"location":"2"},{"scientist":"langstroth"}], "value": 10},	
+    {"timestamp": 1439877960000000, "tag": [{"location":"2"},{"scientist":"perpetua"}], "value": 23},	
+    {"timestamp": 1439878320000000, "tag": [{"location":"2"},{"scientist":"perpetua"}], "value": 22}
+  ]	
