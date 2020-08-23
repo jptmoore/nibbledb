@@ -126,7 +126,7 @@ let filter_worker = (data, func, name, value) => {
   }, data)
 };
 
-let filter = (data, func, tag) => {
+let or_filter = (data, func, tag) => {
   let (name_set, value_set) = tag;
   let names = String.split_on_char(',', name_set); 
   let values = String.split_on_char(',', value_set); 
@@ -135,6 +135,22 @@ let filter = (data, func, tag) => {
     filter_worker(data, func, name, value) |>
       List.rev_append(acc), [], names, values);
 }
+
+let filter = (data, func, tag) => {
+  let (name_set, value_set) = tag;
+  let names = String.split_on_char(',', name_set); 
+  let values = String.split_on_char(',', value_set); 
+  List.length(names) != List.length(values) ? failwith("invalid filter format") : ()
+  let rec loop = (res, names, values) => {
+    switch (names, values) {
+    | ([], []) => List.rev(res);
+    | ([ name, ...rest_names], [ value, ...rest_values]) =>
+        loop(filter_worker(res, func, name, value), rest_names, rest_values);
+    | _ => failwith("invalid filter format")
+    }
+  };
+  loop(data, names, values);
+};
 
 let create = (~file, ~bare) => {
   let config = Irmin_git.config(file, ~bare);
