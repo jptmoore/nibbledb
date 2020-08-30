@@ -29,9 +29,18 @@ let get_nanoseconds = () => {
   Int64.of_float(t);
 }; */
 
-let get_microseconds = () => {
+/* let get_microseconds = () => {
   let t = Unix.gettimeofday() *. 1000.0 *. 1000.0;
   Int64.of_float(t);
+}; */
+
+let get_microseconds = () => {
+  open Int64;
+  let (days, picoseconds) = Ptime_clock.now_d_ps();
+  let seconds_from_days = days * 86400;
+  let microseconds_from_seconds = of_int(seconds_from_days * 1000 * 1000);
+  let microseconds_from_picoseconds = div(picoseconds, of_int(1000 * 1000));
+  add(microseconds_from_seconds, microseconds_from_picoseconds);
 };
 
 /* let get_milliseconds_ptime = () => {
