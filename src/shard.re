@@ -154,16 +154,38 @@ let same_names = (name, names) => {
   loop(names);
 }
 
-let filter = (data, func, tag) => {
-  let (name_set, value_set) = tag;
-  let names = String.split_on_char(',', name_set); 
-  let values = String.split_on_char(',', value_set); 
-  List.length(names) != List.length(values) ? failwith("invalid filter format") : ()
+let gen_filter_lists_helper = (x, (n,v)) => {
+  x == n;
+}
+
+let gen_filter_lists = (l1, l2) => {
+  open List;
+  let l3 = combine(l1, l2); 
+  let l4 = sort_uniq(compare, l1);
+  map(x=> split(filter(y => gen_filter_lists_helper(x,y), l3)), l4);
+}
+
+let apply_filter = (data, func, names, values) => {
   if (same_names(List.hd(names), names)) {
     or_filter(data, func, names, values);
   } else {
     and_filter(data, func, names, values);
   }
+}
+
+let filter = (data, func, tag) => {
+  let (name_set, value_set) = tag;
+  let names = String.split_on_char(',', name_set); 
+  let values = String.split_on_char(',', value_set); 
+  List.length(names) != List.length(values) ? failwith("invalid filter format") : ()
+  let rec loop = (res, lis) => {
+    switch lis {
+    | [] => List.rev(res);
+    | [(names, values), ...rest] =>
+        loop(apply_filter(res, func, names, values), rest);
+    }
+  };
+  loop(data, gen_filter_lists(names, values));
 }
 
 let create = (~file, ~bare) => {
