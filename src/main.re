@@ -245,7 +245,7 @@ let parse_cmdline = () => {
   let usage = "usage: " ++ Sys.argv[0];
   let speclist = [
     (
-      "--path-to-db",
+      "--db",
       Arg.Set_string(path_to_db),
       ": to set the location for the database files"
     ),
