@@ -25,4 +25,5 @@ RUN openssl req -x509 -newkey rsa:4096 -keyout /tmp/server.key -out /tmp/server.
 
 EXPOSE 8000
 
+ENTRYPOINT ["/home/nibble/nibbledb"]
 
