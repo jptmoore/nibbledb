@@ -1,7 +1,7 @@
   
 (executable
   (name main)
-  (libraries irmin-unix oml ezjsonm lwt_log))
+  (libraries ptime.clock.os irmin-unix oml ezjsonm lwt_log))
 
 
 
